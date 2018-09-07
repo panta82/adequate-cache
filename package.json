@@ -1,0 +1,19 @@
+{
+  "name": "adequate-cache",
+  "version": "1.0.0",
+  "description": "Entirely adequate node.js in-memory cache with lru and ttl support",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/panta82/adequate-cache.git"
+  },
+  "author": "Ivan Pantic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/panta82/adequate-cache/issues"
+  },
+  "homepage": "https://github.com/panta82/adequate-cache#readme"
+}
