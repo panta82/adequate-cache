@@ -301,4 +301,56 @@ describe(`AdequateCache`, () => {
       expect(['a', 'b', 'c'].map(cache.get)).to.eql([undefined, 'B is back', undefined]);
     });
   });
+
+  describe('provider', () => {
+    it('will not work if not configured', () => {
+      const cache = new AdequateCache();
+      expect(() => cache.provide('5')).to.throw('Provider must be configured');
+    });
+
+    it('will give value if already in cache', () => {
+      const cache = new AdequateCache({
+        provider: () => Promise.resolve('5'),
+      });
+
+      cache.set('key', '3');
+      return cache.provide('key').then(result => {
+        expect(result).to.equal('3');
+        expect(cache.get('key')).to.equal('3');
+      });
+    });
+
+    it('will call provider and store its value to cache', () => {
+      const cache = new AdequateCache({
+        provider: () => Promise.resolve('5'),
+      });
+
+      return cache.provide('key').then(result => {
+        expect(result).to.equal('5');
+        expect(cache.get('key')).to.equal('5');
+      });
+    });
+
+    it('will handle non-promise values', () => {
+      const cache = new AdequateCache({
+        provider: () => false,
+      });
+
+      return cache.provide('key').then(result => {
+        expect(result).to.be.false;
+        expect(cache.get('key')).to.be.false;
+      });
+    });
+
+    it('will not add undefined-s', () => {
+      const cache = new AdequateCache({
+        provider: () => Promise.resolve(undefined),
+      });
+
+      return cache.provide('key').then(result => {
+        expect(result).to.be.undefined;
+        expect(cache.has('key')).to.be.false;
+      });
+    });
+  });
 });

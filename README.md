@@ -42,6 +42,13 @@ cache.get('a'); // undefined, it was removed due to 'max' setting.
 
 A few more fiddly options can be seen in [the `AdequateCacheOptions` class](lib/internals.js).
 
+### Version history
+
+|Date|Version|Details
+|----|-------|-------
+|2018/09/10|`0.1.0`|Initial release
+|2018/11/01|`0.2.0`|Added `cache.provide(key)` and `provider` option.
+
 ### Implementation details
 
 All values are stored as internal entries, in a native js `Map`. If cache is configured to have max capacity, entries are connected in a doubly-linked list and rearranged any time cache is touched.
@@ -52,7 +59,7 @@ Vacuuming complexity is at most `O(N)`. All other operations are `O(1)`. The tra
 
 ### Project status
 
-Library is feature-complete, and covered with unit tests, but untested in production. Also, there is no benchmarking at the moment.
+Library is feature-complete, and covered with unit tests. I've been using it for a few months and seems pretty stable (still untested in production, though). Also, there is no benchmarking at the moment.
 
 ## License
 
