@@ -42,12 +42,54 @@ cache.get('a'); // undefined, it was removed due to 'max' setting.
 
 A few more fiddly options can be seen in [the `AdequateCacheOptions` class](lib/internals.js).
 
+#### Provider
+
+Provide allows you to reduce boilerplate in a very common usage pattern, where you try to get a value from cache and fall back to an asynchronous fetch method.
+
+```javascript
+const userCache = new AdequateCache();
+
+function getUser(id) {
+  if (userCache.has(id)) {
+    return Promise.resolve(userCache.get(id));
+  }
+  
+  return fetchUser(id).then(user => {
+    userCache.set(id, user);
+    return user;
+  });
+}
+
+//...
+
+getUser(id).then(user => {
+  console.log(user.name);
+});
+```
+
+Provider allows you to reduce the boilerplate above. Like this:
+
+```javascript
+const userCache = new AdequateCache({
+  provider: fetchUser
+});
+
+//...
+
+userCache.provide(id).then(user => {
+  console.log(user.name);
+});
+```
+
+The downsides are that your cache then becomes limited to single type of values (like the `userCache` above), and that you can't cache one value and return another.
+
 ### Version history
 
 |Date|Version|Details
 |----|-------|-------
 |2018/09/10|`0.1.0`|Initial release
 |2018/11/01|`0.2.0`|Added `cache.provide(key)` and `provider` option.
+|2018/11/01|`0.2.1`|Better docs
 
 ### Implementation details
 
