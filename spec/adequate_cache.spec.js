@@ -352,5 +352,28 @@ describe(`AdequateCache`, () => {
         expect(cache.has('key')).to.be.false;
       });
     });
+
+    it('will accept multiple arguments', () => {
+      const cache = new AdequateCache({
+        provider: (...args) => Promise.resolve(args.join('|')),
+      });
+
+      return cache.provide('1', 2, null).then(result => {
+        expect(result).to.equal('1|2|');
+        expect(cache.has('1,2,null')).to.be.true;
+      });
+    });
+
+    it('will utilize custom key provider', () => {
+      const cache = new AdequateCache({
+        provider: (...args) => Promise.resolve(args.join('')),
+        providerArgsToKey: (...args) => args.map(x => `"${x}"`).join('_'),
+      });
+
+      return cache.provide('a', 'b').then(result => {
+        expect(result).to.equal('ab');
+        expect(cache.has('"a"_"b"')).to.be.true;
+      });
+    });
   });
 });

@@ -81,7 +81,20 @@ userCache.provide(id).then(user => {
 });
 ```
 
-The downsides are that your cache then becomes limited to single type of values (like the `userCache` above), and that you can't cache one value and return another.
+You can also have multiple input values. By default they will be stringified and joined into a string key, but you can also provide your own key generator.
+
+```javascript
+const conversionRateCache = new AdequateCache({
+  provider: getConversionRate
+  providerArgsToKey: (a, b) => `${a} to ${b}`
+});
+
+//...
+
+userCache.provide('USD', 'EUR').then(rate => {
+  console.log('USD is worth ' + rate + ' EUR');
+});
+```
 
 ### Version history
 
@@ -90,6 +103,7 @@ The downsides are that your cache then becomes limited to single type of values 
 |2018/09/10|`0.1.0`|Initial release
 |2018/11/01|`0.2.0`|Added `cache.provide(key)` and `provider` option.
 |2018/11/01|`0.2.1`|Better docs
+|2018/12/14|`0.3.0`|`cache.provide` now accepts multiple arguments. `providerArgsToKey` added. 
 
 ### Implementation details
 
