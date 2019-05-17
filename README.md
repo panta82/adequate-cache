@@ -103,7 +103,8 @@ userCache.provide('USD', 'EUR').then(rate => {
 |2018/09/10|`0.1.0`|Initial release
 |2018/11/01|`0.2.0`|Added `cache.provide(key)` and `provider` option.
 |2018/11/01|`0.2.1`|Better docs
-|2018/12/14|`0.3.0`|`cache.provide` now accepts multiple arguments. `providerArgsToKey` added. 
+|2018/12/14|`0.3.0`|`cache.provide` now accepts multiple arguments. `providerArgsToKey` added.
+|2019/05/17|`0.3.1`|`cache.emptyOut()` added.  
 
 ### Implementation details
 

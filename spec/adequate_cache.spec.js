@@ -35,6 +35,11 @@ describe(`AdequateCache`, () => {
     expect(cache.get('a')).to.eql({
       a2: 'UPDATED',
     });
+
+    cache.set('c', 'c');
+    cache.emptyOut();
+    expect(cache.get('a')).to.be.undefined;
+    expect(cache.get('c')).to.be.undefined;
   });
 
   describe('ttl', () => {
