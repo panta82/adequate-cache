@@ -8,17 +8,34 @@ npm i --save adequate-cache
 
 ### Usage
 
-The cache is a class with typical API surface.
+The cache is a class with a rather standard API surface.
 
 ```javascript
 const AdequateCache = require('adequate-cache');
 const cache = new AdequateCache();
 
+// Set a value for key
 cache.set('key', 'value');
+
+// Check whether key is in cache. Returns undefined if not found.
 cache.has('key'); // true
+
+// Retrieve value for key.
 cache.get('key'); // 'value'
+
+// Add another value to cache
+cache.set('key2', 'value2')
+
+// Get iterator for all keys in the cache
+Array.from(cache.keys()); // ['key', 'key2']
+
+// Delete value from cache
 cache.del('key'); // true
 cache.has('key'); // false
+
+// Delete everything from cache
+cache.emptyOut();
+cache.get('key2'); // undefined
 ```
 
 All operations are synchronous. Keys are always cast to `string`. Values can be any javascript value, except `undefined` (setting `undefined` is equivalent to deleting an entry).
@@ -46,6 +63,8 @@ A few more fiddly options can be seen in [the `AdequateCacheOptions` class](lib/
 
 Provide allows you to reduce boilerplate in a very common usage pattern, where you try to get a value from cache and fall back to an asynchronous fetch method.
 
+Code like this:
+
 ```javascript
 const userCache = new AdequateCache();
 
@@ -67,7 +86,7 @@ getUser(id).then(user => {
 });
 ```
 
-Provider allows you to reduce the boilerplate above. Like this:
+Can be converted to something like this:
 
 ```javascript
 const userCache = new AdequateCache({
@@ -85,13 +104,13 @@ You can also have multiple input values. By default they will be stringified and
 
 ```javascript
 const conversionRateCache = new AdequateCache({
-  provider: getConversionRate
+  provider: getConversionRate,
   providerArgsToKey: (a, b) => `${a} to ${b}`
 });
 
 //...
 
-userCache.provide('USD', 'EUR').then(rate => {
+conversionRateCache.provide('USD', 'EUR').then(rate => {
   console.log('USD is worth ' + rate + ' EUR');
 });
 ```
@@ -104,7 +123,8 @@ userCache.provide('USD', 'EUR').then(rate => {
 |2018/11/01|`0.2.0`|Added `cache.provide(key)` and `provider` option.
 |2018/11/01|`0.2.1`|Better docs
 |2018/12/14|`0.3.0`|`cache.provide` now accepts multiple arguments. `providerArgsToKey` added.
-|2019/05/17|`0.3.1`|`cache.emptyOut()` added.  
+|2019/05/17|`0.3.1`|`cache.emptyOut()` added.
+|2019/07/10|`0.3.2`|`cache.keys()` added.
 
 ### Implementation details
 
@@ -116,8 +136,8 @@ Vacuuming complexity is at most `O(N)`. All other operations are `O(1)`. The tra
 
 ### Project status
 
-Library is feature-complete, and covered with unit tests. I've been using it for a few months and seems pretty stable (still untested in production, though). Also, there is no benchmarking at the moment.
+Library is feature-complete, and covered with unit tests. It's been in production for several months, without any issues. There is no speed benchmarking at the moment.
 
 ## License
 
-MIT
+[MIT](LICENSE.txt)

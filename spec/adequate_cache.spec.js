@@ -143,6 +143,31 @@ describe(`AdequateCache`, () => {
     });
   });
 
+  describe('keys', () => {
+    it('will provide iterator for available keys which will not include expired entries', () => {
+      const cache = new AdequateCache({
+        max: 2,
+      });
+
+      cache.set(1, 10);
+      cache.set('2', 20);
+      cache.set(3, 30);
+
+      // Vacuum not done yet
+      expect(cache._data.has('1')).to.be.true;
+
+      expect(Array.from(cache.keys())).to.eql(['2', '3']);
+
+      cache.del(2);
+
+      expect(Array.from(cache.keys())).to.eql(['3']);
+
+      cache.del('3');
+
+      expect(Array.from(cache.keys())).to.eql([]);
+    });
+  });
+
   describe('binding', () => {
     it('will bind methods by default', () => {
       const { get, set, del, has } = new AdequateCache();

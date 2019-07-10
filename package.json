@@ -1,6 +1,6 @@
 {
   "name": "adequate-cache",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Entirely adequate node.js in-memory cache with lru and ttl support",
   "main": "index.js",
   "scripts": {
@@ -18,9 +18,9 @@
   "homepage": "https://github.com/panta82/adequate-cache#readme",
   "devDependencies": {
     "chai": "^4.1.2",
-    "eslint": "^5.5.0",
+    "eslint": "^6.0.1",
     "eslint-config-problems": "^1.1.0",
     "mocha": "^5.2.0",
-    "prettier": "^1.14.2"
+    "prettier": "^1.18.2"
   }
 }
