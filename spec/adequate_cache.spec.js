@@ -405,5 +405,32 @@ describe(`AdequateCache`, () => {
         expect(cache.has('"a"_"b"')).to.be.true;
       });
     });
+
+    it('will reuse the same promise when called multiple times quickly', () => {
+      let callCount = 0;
+      const cache = new AdequateCache({
+        provider: key =>
+          new Promise(resolve => {
+            callCount++;
+            setTimeout(() => resolve(key + '-result'), 50);
+          }),
+      });
+
+      const promises = ['a', 'a', 'b'].map(arg => cache.provide(arg));
+      expect(promises[0]).to.equal(promises[1]);
+      expect(promises[0]).to.not.equal(promises[2]);
+
+      return Promise.all(promises).then(results => {
+        expect(results).to.eql(['a-result', 'a-result', 'b-result']);
+        expect(callCount).to.equal(2);
+
+        // Make sure it won't use cached promise again
+        cache.del('a');
+        return cache.provide('a').then(result => {
+          expect(result).to.equal('a-result');
+          expect(callCount).to.equal(3);
+        });
+      });
+    });
   });
 });

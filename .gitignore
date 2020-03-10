@@ -134,3 +134,5 @@ typings/
 # Serverless directories
 .serverless
 
+# No package.lock in libraries
+package-lock.json

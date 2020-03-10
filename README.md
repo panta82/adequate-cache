@@ -125,6 +125,7 @@ conversionRateCache.provide('USD', 'EUR').then(rate => {
 |2018/12/14|`0.3.0`|`cache.provide` now accepts multiple arguments. `providerArgsToKey` added.
 |2019/05/17|`0.3.1`|`cache.emptyOut()` added.
 |2019/07/10|`0.3.2`|`cache.keys()` added.
+|2020/03/10|`0.4.0`| Provider promises are now reused, so `provider()` won't be called multiple times needlessly. Also removed `package.lock` from repo.
 
 ### Implementation details
 
@@ -136,7 +137,7 @@ Vacuuming complexity is at most `O(N)`. All other operations are `O(1)`. The tra
 
 ### Project status
 
-Library is feature-complete, and covered with unit tests. It's been in production for several months, without any issues. There is no speed benchmarking at the moment.
+Library is feature-complete, and covered with unit tests. It's been in production for more than a year, without any issues. There is no speed benchmarking at the moment.
 
 ## License
 
