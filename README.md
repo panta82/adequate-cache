@@ -24,7 +24,7 @@ cache.has('key'); // true
 cache.get('key'); // 'value'
 
 // Add another value to cache
-cache.set('key2', 'value2')
+cache.set('key2', 'value2');
 
 // Get iterator for all keys in the cache
 Array.from(cache.keys()); // ['key', 'key2']
