@@ -126,6 +126,7 @@ conversionRateCache.provide('USD', 'EUR').then(rate => {
 |2019/05/17|`0.3.1`|`cache.emptyOut()` added.
 |2019/07/10|`0.3.2`|`cache.keys()` added.
 |2020/03/10|`0.4.0`| Provider promises are now reused, so `provider()` won't be called multiple times needlessly. Also removed `package.lock` from repo.
+|2020/03/10|`0.4.1`| Minor JSDoc fix
 
 ### Implementation details
 
