@@ -1,5 +1,6 @@
 /**
  * Entry to store the data
+ * @internal
  */
 export class AdequateCacheEntry<TValue> {
   key: string;

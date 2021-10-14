@@ -6,6 +6,21 @@ Entirely adequate node.js in-memory cache with lru and ttl support. Typescript t
 npm i --save adequate-cache
 ```
 
+or
+
+```
+yarn add adequate-cache
+```
+
+### Features
+
+- In-memory cache: `get`, `set`, `del`, `has`, `keys` iterator
+- Optional TTL expiration
+- Optional LRU (least-recently used) pruning
+- "Provider", helper for async workflows
+- Full typescript support
+- No dependencies
+
 ### Documentation
 
 Full documentation is available at https://panta82.github.io/adequate-cache/
@@ -119,16 +134,58 @@ conversionRateCache.provide('USD', 'EUR').then(rate => {
 
 ### Version history
 
-| Date       | Version | Details                                                                                                                             |
-| ---------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| 2018/09/10 | `0.1.0` | Initial release                                                                                                                     |
-| 2018/11/01 | `0.2.0` | Added `cache.provide(key)` and `provider` option.                                                                                   |
-| 2018/11/01 | `0.2.1` | Better docs                                                                                                                         |
-| 2018/12/14 | `0.3.0` | `cache.provide` now accepts multiple arguments. `providerArgsToKey` added.                                                          |
-| 2019/05/17 | `0.3.1` | `cache.emptyOut()` added.                                                                                                           |
-| 2019/07/10 | `0.3.2` | `cache.keys()` added.                                                                                                               |
-| 2020/03/10 | `0.4.0` | Provider promises are now reused, so `provider()` won't be called multiple times needlessly. Also removed `package.lock` from repo. |
-| 2020/03/10 | `0.4.1` | Minor JSDoc fix                                                                                                                     |
+##### 2018/09/10 - `0.1.0`
+
+Initial release
+
+##### 2018/09/10 - `0.1.0`
+
+Initial release
+
+#### 2018/11/01 - `0.2.0`
+
+Added `cache.provide(key)` and `provider` option.
+
+#### 2018/11/01 - `0.2.1`
+
+Better docs
+
+#### 2018/12/14 - `0.3.0`
+
+`cache.provide` now accepts multiple arguments.
+Also added `providerArgsToKey`.
+
+#### 2019/05/17 - `0.3.1`
+
+Added `cache.emptyOut()`.
+
+#### 2019/07/10 - `0.3.2`
+
+Added `cache.keys()`.
+
+#### 2020/03/10 - `0.4.0`
+
+Provider promises are now reused, so `provider()` won't be called multiple times needlessly
+Also removed `package.lock` from repo.
+
+#### 2020/03/10 - `0.4.1`
+
+Minor JSDoc fix
+
+#### 2020/03/10 - `1.0.0`
+
+The entire library was rewritten to typescript. It now includes full types.
+We now also ship full API documentation, at https://panta82.github.io/adequate-cache/.
+
+The API has remained fully backwards compatible. However, there are a few minor changes, necessitating a major version bump:
+
+- We no longer export `AdequateCache.Options` and `AdequateCache.Entry` classes. `Entry` is now fully internal, while `Options` are now a typescript interface and are no longer available as a class. If you did something like `new AdequateCache.Options({...})`, you can just remove that constructor and just use the `IAdequateCacheOptions` interface instead (or nothing at all).
+
+- In lieu of `Options`, we now export `DEFAULT_OPTIONS`. You can mutate this if you want to change the defaults.
+
+- Options now take `now` parameter, for customizing time generation officially.
+
+- All previously "informally" private methods are now typescript private. Your IDE might mark them with red lines. They are still available at their own places, though.
 
 ### Implementation details
 
