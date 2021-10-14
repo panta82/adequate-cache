@@ -1,70 +1,70 @@
-'use strict';
-
-const { AdequateCacheEntry, AdequateCacheOptions } = require('./internals');
+import { AdequateCacheEntry } from './internals';
+import { DEFAULT_OPTIONS, IAdequateCacheOptions } from './options';
 
 /**
  * Entirely adequate node.js in-memory cache with lru and ttl support
- * @template T
  */
-class AdequateCache {
+export class AdequateCache<TValue, TProviderArgs extends any[] = any[]> {
+  private _options: IAdequateCacheOptions<TValue, TProviderArgs>;
+
+  private _data = new Map<string, AdequateCacheEntry<TValue>>();
+  private _head: AdequateCacheEntry<TValue> = null;
+  private _tail: AdequateCacheEntry<TValue> = null;
+
   /**
-   * @constructor
-   * @param {AdequateCacheOptions} options
+   * Source of time information
    */
-  constructor(options) {
-    if (!(options instanceof AdequateCacheOptions)) {
-      options = new AdequateCacheOptions(options);
+  private _now: () => number;
+
+  private _ttlCount = 0;
+  private _lastVacuumAt: number;
+  private _pendingVacuum = false;
+
+  private _providerPromises = new Map<string, Promise<TValue>>();
+
+  constructor(userSuppliedOptions?: IAdequateCacheOptions<TValue, TProviderArgs>) {
+    const options = { ...DEFAULT_OPTIONS } as IAdequateCacheOptions<TValue, TProviderArgs>;
+
+    if (userSuppliedOptions) {
+      for (const key in userSuppliedOptions) {
+        if (
+          Object.prototype.hasOwnProperty.call(userSuppliedOptions, key) &&
+          userSuppliedOptions[key] !== undefined
+        ) {
+          options[key] = userSuppliedOptions[key];
+        }
+      }
     }
 
-    /** @type {AdequateCacheOptions} */
     this._options = options;
-
-    /** @type {Map<string, AdequateCacheEntry>} */
-    this._data = new Map();
-
-    /** @type {AdequateCacheEntry} */
-    this._head = null;
-
-    /** @type {AdequateCacheEntry} */
-    this._tail = null;
+    this._now = options.now || Date.now;
 
     this._ttlCount = 0;
-    this._lastVacuumAt = Date.now();
-    this._pendingVacuum = false;
-
-    /** @type {Map<string, Promise<T>>} */
-    this._providerPromises = new Map();
+    this._lastVacuumAt = this._now();
 
     if (this._options.bindMethods) {
       this.has = this.has.bind(this);
       this.get = this.get.bind(this);
       this.set = this.set.bind(this);
       this.del = this.del.bind(this);
+      this.emptyOut = this.emptyOut.bind(this);
+      this.provide = this.provide.bind(this);
+      this.keys = this.keys.bind(this);
     }
-
-    /**
-     * Source of time information
-     * @return {Number}
-     */
-    this._now = Date.now;
   }
 
   /**
    * Returns true if cache contains value at given key.
    * Note that there is no performance benefit to calling this over get(), it's just a convenience method.
-   * @param {string|number} key
-   * @return {*|undefined}
    */
-  has(key) {
+  has(key: string | number): boolean {
     return this.get(key) !== undefined;
   }
 
   /**
    * Get value at key, or return undefined
-   * @param {string|number} key
-   * @return {T|undefined}
    */
-  get(key) {
+  get(key: string | number): TValue | undefined {
     key = String(key);
     let entry = this._data.get(key);
     if (entry) {
@@ -86,12 +86,11 @@ class AdequateCache {
   /**
    * Set value at key. Optionally set ttl for this particular key, otherwise use the global default.
    * If value is undefined, the key is deleted from cache.
-   * @param {string|number} key
-   * @param {T} value
-   * @param {Number|null} ttl Set TTL specifically for this key
-   * @return {Boolean}
+   * @param key
+   * @param value
+   * @param ttl Set TTL specifically for this key
    */
-  set(key, value, ttl = undefined) {
+  set(key: string | number, value: TValue, ttl?: number): boolean {
     if (value === undefined) {
       return this.del(key);
     }
@@ -106,7 +105,7 @@ class AdequateCache {
     if (ttl === undefined) {
       ttl = this._options.ttl;
     }
-    const entry = new AdequateCacheEntry(key, value, ttl, this._now());
+    const entry = new AdequateCacheEntry<TValue>(key, value, ttl, this._now());
 
     if (this._options.max) {
       // New entries go to top if we are doing lru
@@ -126,9 +125,8 @@ class AdequateCache {
 
   /**
    * Delete value at key. Returns true if value was in the cache, false if not.
-   * @param key
    */
-  del(key) {
+  del(key: string | number) {
     key = String(key);
     const entry = this._data.get(key);
 
@@ -153,15 +151,13 @@ class AdequateCache {
   /**
    * Returns value if it is already in cache. Otherwise, calls the "provider" method (that must be given
    * through options) and stores the value in cache, before returning it.
-   * @param {any...} args
-   * @return {Promise<T>}
    */
-  provide(...args) {
+  provide(...args: TProviderArgs): Promise<TValue> {
     if (!this._options.provider) {
       throw new Error('Provider must be configured if you wish to use the "provide" method');
     }
 
-    let key;
+    let key: string;
     if (this._options.providerArgsToKey) {
       key = this._options.providerArgsToKey(...args);
     } else {
@@ -197,18 +193,13 @@ class AdequateCache {
    * Returns an iterator of all the keys currently in cache.
    * Performs vacuum beforehand, so the keys you get are guaranteed
    * to be actually non-expired. Keys are provided converted to string.
-   * @return {IterableIterator<string>}
    */
-  keys() {
+  keys(): IterableIterator<string> {
     this._vacuum();
     return this._data.keys();
   }
 
-  /**
-   * @param {AdequateCacheEntry} entry
-   * @private
-   */
-  _doDelete(entry) {
+  private _doDelete(entry: AdequateCacheEntry<TValue>) {
     if (this._options.max) {
       this._detach(entry);
     }
@@ -220,10 +211,8 @@ class AdequateCache {
 
   /**
    * Attach entry to internal linked list head.
-   * @param entry
-   * @private
    */
-  _attachToHead(entry) {
+  private _attachToHead(entry: AdequateCacheEntry<TValue>) {
     if (this._head) {
       entry.next = this._head;
       this._head.prev = entry;
@@ -239,10 +228,8 @@ class AdequateCache {
 
   /**
    * Detach entry from the linked list. It stays in the lookup.
-   * @param {AdequateCacheEntry} entry
-   * @private
    */
-  _detach(entry) {
+  private _detach(entry: AdequateCacheEntry<TValue>) {
     if (this._head === entry) {
       this._head = entry.next;
     }
@@ -262,7 +249,7 @@ class AdequateCache {
   /**
    * Try schedule or perform a vacuum
    */
-  _tryVacuum() {
+  private _tryVacuum() {
     if (this._pendingVacuum) {
       // We are already in process of vacuuming
       return;
@@ -290,9 +277,8 @@ class AdequateCache {
 
   /**
    * Clean up expired keys, clean up overflowing keys
-   * @private
    */
-  _vacuum() {
+  private _vacuum() {
     this._pendingVacuum = false;
     this._lastVacuumAt = this._now();
 
@@ -317,9 +303,3 @@ class AdequateCache {
     }
   }
 }
-
-// *********************************************************************************************************************
-
-module.exports = {
-  AdequateCache,
-};

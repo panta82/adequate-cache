@@ -1,8 +1,4 @@
-'use strict';
-
-const expect = require('chai').expect;
-
-const AdequateCache = require('../index');
+import { AdequateCache } from '../src';
 
 describe(`AdequateCache`, () => {
   it('can perform basic operations', () => {
@@ -16,15 +12,15 @@ describe(`AdequateCache`, () => {
       B: true,
     });
 
-    expect(cache.has('a')).to.be.true;
-    expect(cache.has('b')).to.be.true;
+    expect(cache.has('a')).toEqual(true);
+    expect(cache.has('b')).toEqual(true);
 
     cache.del('b');
 
-    expect(cache.has('b')).to.be.false;
-    expect(cache.get('b')).to.be.undefined;
+    expect(cache.has('b')).toEqual(false);
+    expect(cache.get('b')).toBeUndefined();
 
-    expect(cache.get('a')).to.eql({
+    expect(cache.get('a')).toEqual({
       A: true,
     });
 
@@ -32,14 +28,14 @@ describe(`AdequateCache`, () => {
       a2: 'UPDATED',
     });
 
-    expect(cache.get('a')).to.eql({
+    expect(cache.get('a')).toEqual({
       a2: 'UPDATED',
     });
 
     cache.set('c', 'c');
     cache.emptyOut();
-    expect(cache.get('a')).to.be.undefined;
-    expect(cache.get('c')).to.be.undefined;
+    expect(cache.get('a')).toBeUndefined();
+    expect(cache.get('c')).toBeUndefined();
   });
 
   describe('ttl', () => {
@@ -47,26 +43,26 @@ describe(`AdequateCache`, () => {
       const cache = new AdequateCache({
         ttl: 100,
       });
-      cache._now = () => 0;
+      cache['_now'] = () => 0;
 
       cache.set('a', 'A');
       cache.set('b', 'B', null);
       cache.set('c', 'C', 200);
 
-      expect(['a', 'b', 'c'].map(cache.has)).to.eql([true, true, true]);
-      expect(cache._ttlCount).to.equal(2);
+      expect(['a', 'b', 'c'].map(cache.has)).toEqual([true, true, true]);
+      expect(cache['_ttlCount']).toEqual(2);
 
-      cache._now = () => 101;
-      expect(['a', 'b', 'c'].map(cache.has)).to.eql([false, true, true]);
-      expect(cache._ttlCount).to.equal(1);
+      cache['_now'] = () => 101;
+      expect(['a', 'b', 'c'].map(cache.has)).toEqual([false, true, true]);
+      expect(cache['_ttlCount']).toEqual(1);
 
-      cache._now = () => 201;
-      expect(['a', 'b', 'c'].map(cache.has)).to.eql([false, true, false]);
-      expect(cache._ttlCount).to.equal(0);
+      cache['_now'] = () => 201;
+      expect(['a', 'b', 'c'].map(cache.has)).toEqual([false, true, false]);
+      expect(cache['_ttlCount']).toEqual(0);
 
-      cache._now = () => Number.MAX_SAFE_INTEGER;
+      cache['_now'] = () => Number.MAX_SAFE_INTEGER;
 
-      expect(['a', 'b', 'c'].map(cache.has)).to.eql([false, true, false]);
+      expect(['a', 'b', 'c'].map(cache.has)).toEqual([false, true, false]);
     });
   });
 
@@ -84,43 +80,43 @@ describe(`AdequateCache`, () => {
       cache.set('d', 'd');
       cache.get('b');
 
-      const [a, b, c, d] = ['a', 'b', 'c', 'd'].map(key => cache._data.get(key));
+      const [a, b, c, d] = ['a', 'b', 'c', 'd'].map(key => cache['_data'].get(key));
 
-      expect(cache._head).to.equal(b);
-      expect(cache._tail).to.equal(c);
+      expect(cache['_head']).toEqual(b);
+      expect(cache['_tail']).toEqual(c);
 
-      expect(b.prev).to.be.null;
-      expect(b.next).to.equal(d);
+      expect(b.prev).toBeNull();
+      expect(b.next).toEqual(d);
 
-      expect(d.prev).to.equal(b);
-      expect(d.next).to.equal(a);
+      expect(d.prev).toEqual(b);
+      expect(d.next).toEqual(a);
 
-      expect(a.prev).to.equal(d);
-      expect(a.next).to.equal(c);
+      expect(a.prev).toEqual(d);
+      expect(a.next).toEqual(c);
 
-      expect(c.prev).to.equal(a);
-      expect(c.next).to.be.null;
+      expect(c.prev).toEqual(a);
+      expect(c.next).toBeNull();
 
       cache.del('a');
 
-      expect(d.next).to.equal(c);
-      expect(c.prev).to.equal(d);
+      expect(d.next).toEqual(c);
+      expect(c.prev).toEqual(d);
 
       cache.del('c');
 
-      expect(d.next).to.be.null;
-      expect(cache._tail).to.equal(d);
+      expect(d.next).toBeNull();
+      expect(cache['_tail']).toEqual(d);
 
       cache.del('b');
 
-      expect(cache._head).to.equal(d);
-      expect(cache._tail).to.equal(d);
-      expect(d.prev).to.be.null;
+      expect(cache['_head']).toEqual(d);
+      expect(cache['_tail']).toEqual(d);
+      expect(d.prev).toBeNull();
 
       cache.del('d');
 
-      expect(cache._head).to.be.null;
-      expect(cache._tail).to.be.null;
+      expect(cache['_head']).toBeNull();
+      expect(cache['_tail']).toBeNull();
     });
 
     it('will not bother linking entries if max is not set', () => {
@@ -132,14 +128,14 @@ describe(`AdequateCache`, () => {
       cache.set('b', 'b');
       cache.get('a');
 
-      const [a, b] = ['a', 'b'].map(key => cache._data.get(key));
+      const [a, b] = ['a', 'b'].map(key => cache['_data'].get(key));
 
-      expect(cache._head).to.be.null;
-      expect(cache._tail).to.be.null;
-      expect(a.next).to.be.null;
-      expect(a.prev).to.be.null;
-      expect(b.next).to.be.null;
-      expect(b.prev).to.be.null;
+      expect(cache['_head']).toBeNull();
+      expect(cache['_tail']).toBeNull();
+      expect(a.next).toBeNull();
+      expect(a.prev).toBeNull();
+      expect(b.next).toBeNull();
+      expect(b.prev).toBeNull();
     });
   });
 
@@ -154,17 +150,17 @@ describe(`AdequateCache`, () => {
       cache.set(3, 30);
 
       // Vacuum not done yet
-      expect(cache._data.has('1')).to.be.true;
+      expect(cache['_data'].has('1')).toEqual(true);
 
-      expect(Array.from(cache.keys())).to.eql(['2', '3']);
+      expect(Array.from(cache.keys())).toEqual(['2', '3']);
 
       cache.del(2);
 
-      expect(Array.from(cache.keys())).to.eql(['3']);
+      expect(Array.from(cache.keys())).toEqual(['3']);
 
       cache.del('3');
 
-      expect(Array.from(cache.keys())).to.eql([]);
+      expect(Array.from(cache.keys())).toEqual([]);
     });
   });
 
@@ -173,10 +169,10 @@ describe(`AdequateCache`, () => {
       const { get, set, del, has } = new AdequateCache();
       set('a', 123);
       set('b', 123);
-      expect(get('a')).to.equal(get('b'));
+      expect(get('a')).toEqual(get('b'));
 
       del('a');
-      expect(has('a')).to.be.false;
+      expect(has('a')).toEqual(false);
     });
 
     it('can be configured not to bind methods', () => {
@@ -188,12 +184,16 @@ describe(`AdequateCache`, () => {
       const fakeCache = {
         get: cache.get,
         _data: {
-          get: () => {},
+          get: () => {
+            // Empty
+          },
         },
-        _tryVacuum: () => {},
+        _tryVacuum: () => {
+          // Empty
+        },
       };
 
-      expect(fakeCache.get('x')).to.be.undefined;
+      expect(fakeCache.get('x')).toBeUndefined();
     });
   });
 
@@ -203,17 +203,17 @@ describe(`AdequateCache`, () => {
         vacuumFrequency: 100,
         vacuumInBackground: false,
       });
-      cache._lastVacuumAt = 0;
-      cache._now = () => 100;
+      cache['_lastVacuumAt'] = 0;
+      cache['_now'] = () => 100;
 
       let triggered = false;
-      cache._vacuum = () => {
+      cache['_vacuum'] = () => {
         triggered = true;
       };
 
       cache.set('a', 'A', 200);
 
-      expect(triggered).to.be.true;
+      expect(triggered).toEqual(true);
     });
 
     it('can trigger based on overflow', () => {
@@ -222,20 +222,20 @@ describe(`AdequateCache`, () => {
         vacuumOverflowFactor: 1.5,
         vacuumInBackground: false,
       });
-      cache._lastVacuumAt = 0;
-      cache._now = () => 0;
+      cache['_lastVacuumAt'] = 0;
+      cache['_now'] = () => 0;
 
       let triggered = false;
-      cache._vacuum = () => {
+      cache['_vacuum'] = () => {
         triggered = true;
       };
 
       cache.set('a', 'A');
-      expect(triggered).to.be.false;
+      expect(triggered).toEqual(false);
       cache.set('b', 'B');
-      expect(triggered).to.be.false;
+      expect(triggered).toEqual(false);
       cache.set('c', 'C');
-      expect(triggered).to.be.true;
+      expect(triggered).toEqual(true);
     });
 
     it('will be scheduled only once for background execution', done => {
@@ -243,23 +243,23 @@ describe(`AdequateCache`, () => {
         ttl: 20,
         vacuumFrequency: 100,
       });
-      cache._lastVacuumAt = 0;
-      cache._now = () => 100;
+      cache['_lastVacuumAt'] = 0;
+      cache['_now'] = () => 100;
 
       let triggeredCount = 0;
-      cache._vacuum = () => {
+      cache['_vacuum'] = () => {
         triggeredCount++;
       };
 
       cache.set('a', null);
-      expect(triggeredCount).to.equal(0);
+      expect(triggeredCount).toEqual(0);
       cache.set('b', NaN);
-      expect(triggeredCount).to.equal(0);
+      expect(triggeredCount).toEqual(0);
       cache.set('c', 3);
-      expect(triggeredCount).to.equal(0);
+      expect(triggeredCount).toEqual(0);
 
       setTimeout(() => {
-        expect(triggeredCount).to.equal(1);
+        expect(triggeredCount).toEqual(1);
         done();
       }, 100);
     });
@@ -268,15 +268,15 @@ describe(`AdequateCache`, () => {
   describe('_vacuum', () => {
     it('can correctly reset flags', () => {
       const cache = new AdequateCache({});
-      cache._now = () => 123;
+      cache['_now'] = () => 123;
 
-      cache._pendingVacuum = true;
-      cache._lastVacuumAt = 100;
+      cache['_pendingVacuum'] = true;
+      cache['_lastVacuumAt'] = 100;
 
-      cache._vacuum();
+      cache['_vacuum']();
 
-      expect(cache._pendingVacuum).to.be.false;
-      expect(cache._lastVacuumAt).to.equal(123);
+      expect(cache['_pendingVacuum']).toEqual(false);
+      expect(cache['_lastVacuumAt']).toEqual(123);
     });
 
     it('can correctly perform when triggered by frequency', () => {
@@ -287,8 +287,8 @@ describe(`AdequateCache`, () => {
         vacuumInBackground: false,
         vacuumOverflowFactor: 5,
       });
-      cache._lastVacuumAt = 0;
-      cache._now = () => 0;
+      cache['_lastVacuumAt'] = 0;
+      cache['_now'] = () => 0;
 
       cache.set('a', 'A', 50);
       cache.set('b', 'B');
@@ -296,10 +296,10 @@ describe(`AdequateCache`, () => {
       cache.set('d', 'D', null);
       cache.set('e', 'E', 200);
 
-      cache._now = () => 101;
+      cache['_now'] = () => 101;
       cache.get('c');
 
-      expect(['a', 'b', 'c', 'd', 'e'].map(cache.get)).to.eql([
+      expect(['a', 'b', 'c', 'd', 'e'].map(cache.get)).toEqual([
         undefined,
         undefined,
         'C',
@@ -315,71 +315,71 @@ describe(`AdequateCache`, () => {
         vacuumInBackground: false,
         vacuumOverflowFactor: 1.5,
       });
-      cache._lastVacuumAt = 0;
-      cache._now = () => 0;
+      cache['_lastVacuumAt'] = 0;
+      cache['_now'] = () => 0;
 
       cache.set('a', 'A', 50);
       cache.set('b', 'B');
       cache.set('a', 'A second!', 100);
       cache.set('c', 'C', 100);
 
-      expect(['a', 'b', 'c'].map(cache.get)).to.eql(['A second!', undefined, 'C']);
+      expect(['a', 'b', 'c'].map(cache.get)).toEqual(['A second!', undefined, 'C']);
 
-      cache._now = () => 101;
+      cache['_now'] = () => 101;
       cache.set('b', 'B is back', 1);
 
-      expect(['a', 'b', 'c'].map(cache.get)).to.eql([undefined, 'B is back', undefined]);
+      expect(['a', 'b', 'c'].map(cache.get)).toEqual([undefined, 'B is back', undefined]);
     });
   });
 
   describe('provider', () => {
     it('will not work if not configured', () => {
       const cache = new AdequateCache();
-      expect(() => cache.provide('5')).to.throw('Provider must be configured');
+      expect(() => cache.provide('5')).toThrow('Provider must be configured');
     });
 
     it('will give value if already in cache', () => {
       const cache = new AdequateCache({
-        provider: () => Promise.resolve('5'),
+        provider: key => Promise.resolve('5'),
       });
 
       cache.set('key', '3');
       return cache.provide('key').then(result => {
-        expect(result).to.equal('3');
-        expect(cache.get('key')).to.equal('3');
+        expect(result).toEqual('3');
+        expect(cache.get('key')).toEqual('3');
       });
     });
 
     it('will call provider and store its value to cache', () => {
       const cache = new AdequateCache({
-        provider: () => Promise.resolve('5'),
+        provider: key => Promise.resolve('5'),
       });
 
       return cache.provide('key').then(result => {
-        expect(result).to.equal('5');
-        expect(cache.get('key')).to.equal('5');
+        expect(result).toEqual('5');
+        expect(cache.get('key')).toEqual('5');
       });
     });
 
     it('will handle non-promise values', () => {
       const cache = new AdequateCache({
-        provider: () => false,
+        provider: key => false,
       });
 
       return cache.provide('key').then(result => {
-        expect(result).to.be.false;
-        expect(cache.get('key')).to.be.false;
+        expect(result).toEqual(false);
+        expect(cache.get('key')).toEqual(false);
       });
     });
 
     it('will not add undefined-s', () => {
       const cache = new AdequateCache({
-        provider: () => Promise.resolve(undefined),
+        provider: key => Promise.resolve(undefined),
       });
 
       return cache.provide('key').then(result => {
-        expect(result).to.be.undefined;
-        expect(cache.has('key')).to.be.false;
+        expect(result).toBeUndefined();
+        expect(cache.has('key')).toEqual(false);
       });
     });
 
@@ -389,20 +389,20 @@ describe(`AdequateCache`, () => {
       });
 
       return cache.provide('1', 2, null).then(result => {
-        expect(result).to.equal('1|2|');
-        expect(cache.has('1,2,null')).to.be.true;
+        expect(result).toEqual('1|2|');
+        expect(cache.has('1,2,null')).toEqual(true);
       });
     });
 
     it('will utilize custom key provider', () => {
       const cache = new AdequateCache({
-        provider: (...args) => Promise.resolve(args.join('')),
+        provider: (a, b) => Promise.resolve(a + b),
         providerArgsToKey: (...args) => args.map(x => `"${x}"`).join('_'),
       });
 
       return cache.provide('a', 'b').then(result => {
-        expect(result).to.equal('ab');
-        expect(cache.has('"a"_"b"')).to.be.true;
+        expect(result).toEqual('ab');
+        expect(cache.has('"a"_"b"')).toEqual(true);
       });
     });
 
@@ -417,18 +417,18 @@ describe(`AdequateCache`, () => {
       });
 
       const promises = ['a', 'a', 'b'].map(arg => cache.provide(arg));
-      expect(promises[0]).to.equal(promises[1]);
-      expect(promises[0]).to.not.equal(promises[2]);
+      expect(promises[0]).toBe(promises[1]);
+      expect(promises[0]).not.toBe(promises[2]);
 
       return Promise.all(promises).then(results => {
-        expect(results).to.eql(['a-result', 'a-result', 'b-result']);
-        expect(callCount).to.equal(2);
+        expect(results).toEqual(['a-result', 'a-result', 'b-result']);
+        expect(callCount).toEqual(2);
 
         // Make sure it won't use cached promise again
         cache.del('a');
         return cache.provide('a').then(result => {
-          expect(result).to.equal('a-result');
-          expect(callCount).to.equal(3);
+          expect(result).toEqual('a-result');
+          expect(callCount).toEqual(3);
         });
       });
     });
