@@ -1,6 +1,6 @@
 {
   "name": "adequate-cache",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "description": "Entirely adequate node.js in-memory cache, with lru and ttl support. Typings included.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
