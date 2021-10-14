@@ -172,9 +172,9 @@ Also removed `package.lock` from repo.
 
 Minor JSDoc fix
 
-#### 2020/03/10 - `1.0.0`
+#### 2021/10/14 - `1.0.0`
 
-The entire library was rewritten to typescript. It now includes full types.
+The entire library was rewritten in typescript. It now includes full types.
 We now also ship full API documentation, at https://panta82.github.io/adequate-cache/.
 
 The API has remained fully backwards compatible. However, there are a few minor changes, necessitating a major version bump:

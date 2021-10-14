@@ -1,0 +1,11 @@
+{
+  "name": "js_tester",
+  "version": "1.0.0",
+  "description": "",
+  "main": "js_tester.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "adequate-cache": "latest"
+  }
+}
