@@ -268,7 +268,7 @@ export class AdequateCache<TValue, TProviderArgs extends any[] = any[]> {
       // We should vacuum
       if (this._options.vacuumInBackground) {
         this._pendingVacuum = true;
-        setImmediate(() => this._vacuum());
+        setTimeout(() => this._vacuum(), 0);
       } else {
         this._vacuum();
       }

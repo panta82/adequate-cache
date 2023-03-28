@@ -187,6 +187,10 @@ The API has remained fully backwards compatible. However, there are a few minor 
 
 - All previously "informally" private methods are now typescript private. Your IDE might mark them with red lines. They are still available at their own places, though.
 
+#### 2023/03/28 - `1.0.1`
+
+- Remove usage of setImmediate() in favor of setTimeout(). Move towards making the lib usable in browser.
+
 ### Implementation details
 
 All values are stored as internal entries, in a native js `Map`. If cache is configured to have max capacity, entries are connected in a doubly-linked list and rearranged any time cache is touched.
